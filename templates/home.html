@@ -1,10 +1,88 @@
 {% extends "layout.html" %}
 
 {% block content %}
-	<main class="hero-section">
-		<div class = "container">
+  <main class="hero-section">
+    <div class="container">
+      
+      <div class="section-tabs">
+        <div class="places">
+          {% for place in places %}
+            <article>
+              <a class="name" href="{{ place['url'] }}" target="_blank">{{ place['name'] }}</a>
+              <p class="walking-distance">{{ place['time'] }} min away</p>
+            </article>
+          {% endfor %}
+        </div>
+      </div>
 
-			<h1>Home</h1>
-		</div>
-	</main>
+      <div class="section-map">
+        <div class="nav">
+          <form method="POST" action="/home">
+            {{ form.hidden_tag() }}
+            
+            <div class="form-group">
+              {% if form.address.errors %}
+                {% for error in form.address.errors %}
+                  <p class="error-message">{{ error }}</p>
+                {% endfor %}
+              {% endif %}
+
+              {{ form.address(placeholder="Enter a command to explore syntax and examples.") }}
+            </div>
+            
+            {{ form.submit(class="btn-primary") }}
+          </form>
+        </div>
+
+        <div>  
+            <h2>File Commands</h2>
+            <p><strong>ls </strong>- List files.</p>
+            <p><strong>touch</strong>- Create file.</p>
+            <p><strong>cmp</strong> - Compare two files. </p>
+            <p><strong>rm </strong>- Delect file.</p>
+            <p><strong>grep</strong> - Search for a file or files that match a given pattern.</p>
+
+          </div>
+
+          <div class="container">
+
+            <h2>Directory Commands</h2>
+            <p><strong>mkdir</strong> - Create directory.</p>
+            <p><strong>cd</strong> - Change directory.</p>
+            <p><strong>rmdir</strong> - Remove specified directory.</p>
+            <p><strong>pwd</strong> - Show present working directory.</p>
+
+          </div>
+
+
+
+      </div>
+      
+      <div class="clearfix"></div>
+    </div>
+  </main>
+
+ <!--  <script>
+    var planes = [
+      {% for place in places %}
+        ["<h3><a href='{{ place['url'] }}' target='_blank'>{{ place['name'] }}</a></h3> <p>{{ place['time'] }} min away</p>", {{ place['lat'] }}, {{ place['lng'] }} ],
+      {% endfor %}
+    ];
+
+    var map = L.map('map').setView([{{ my_coordinates[0] }}, {{ my_coordinates[1] }}], 15);
+    mapLink = '<a href="http://openstreetmap.org">OpenStreetMap</a>';
+    L.tileLayer(
+      'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; ' + mapLink + ' Contributors',
+        maxZoom: 18,
+      }
+    ).addTo(map);
+
+    for (var i = 0; i < planes.length; i++) {
+      marker = new L.marker([planes[i][1],planes[i][2]])
+        .bindPopup(planes[i][0])
+        .addTo(map);
+    }    
+  </script> -->
+
 {% endblock %}

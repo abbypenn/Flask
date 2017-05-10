@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, session, redirect, url_for
-from models import db, User
-from forms import SignupForm
+from models import db, User, Place  #, Command
+from forms import SignupForm, LoginForm, AddressForm # , CommandForm
 
 app = Flask(__name__)
 
@@ -21,9 +21,12 @@ def about():
 
 @app.route("/signup", methods=['GET', 'POST'])
 def signup():
- 	form = SignupForm()
+	if 'email' in session:
+		return redirect(url_for('home'))
 
- 	if request.method == "POST":
+	form = SignupForm()
+
+	if request.method == "POST":
  		if form.validate() == False:
  			return render_template('signup.html', form=form)
  		else:
@@ -34,12 +37,84 @@ def signup():
  			session['email'] = newuser.email
  			return redirect(url_for('home'))
 
- 	elif request.method == "GET":
+	elif request.method == "GET":
  		return render_template('signup.html', form=form)
 
-@app.route("/home")
+@app.route("/login", methods=["GET", "POST"])
+def login():
+	if 'email' in session:
+		return redirect(url_for('home'))
+
+	form = LoginForm()
+
+	if request.method == "POST":
+		if form.validate() == False:
+			return render_template("login.html", form=form)
+		else:
+			email = form.email.data
+			password = form.password.data
+
+			user = User.query.filter_by(email=email).first()
+			if user is not None and user.check_password(password):
+				session['email'] = form.email.data
+				return redirect(url_for('home'))
+			else:
+				return redirect(url_for('login'))
+
+	elif request.method == 'GET':
+		return render_template('login.html', form=form)
+
+@app.route('/logout')
+def logout():
+	session.pop('email', None)
+	return redirect(url_for('index'))
+
+@app.route("/home", methods=["GET", "POST"])
 def home():
-	return render_template("home.html")
+	if 'email' not in session:
+		return redirect(url_for('login'))
+
+
+# Added code to query BASHSyntax database for command
+# if request.method == "POST":
+# 		if form.validate() == False:
+# 			return render_template("home.html", form=form)
+# 		else:
+# 			command = form.command.data
+# 			syntax = form.syntax.data
+
+# 			command = User.query.filter_by(command=command).first()
+# 			if command is not None and user.check_password(password):
+# 				session['command'] = form.commnand.data
+# 				results = ("SELECT syntax FROM BASHSyntax WHERE command = $1", [command])
+# 				return render_template("home.html", form=form)
+				
+
+
+# end added code
+
+	form = AddressForm()
+
+	places = []
+	my_coordinates = (37.4221, -122.0844)
+
+	if request.method == "POST":
+		if form.validate() == False:
+			return render_template('home.html', form=form)
+		else:
+			# get the address
+			address = form.address.data
+
+			# query for places around it
+			p = Place()
+			my_coordinates = p.address_to_latlng(address)
+			places = p.query(address)
+			
+			# return those results
+			return render_template('home.html', form=form, my_coordinates=my_coordinates, places=places)
+
+	elif request.method == 'GET':
+		return render_template("home.html", form=form, my_coordinates=my_coordinates, places=places)
 	
 if __name__ == "__main__":
   app.run(debug=True)

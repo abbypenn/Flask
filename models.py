@@ -32,12 +32,12 @@ class User(db.Model):
 
 # New class to be used to search for command sytnax and examples
 
-class Command(db.Model):
-  __tablename__ = 'users'
-  uid = db.Column(db.Integer, primary_key = True)
-  command = db.Column(db.String(100))
-  syntax = db.Column(db.String(100))
-  example = db.Column(db.String(120), unique=True)
+# class Command(db.Model):
+#   __tablename__ = 'users'
+#   uid = db.Column(db.Integer, primary_key = True)
+#   command = db.Column(db.String(100))
+#   syntax = db.Column(db.String(100))
+#   example = db.Column(db.String(120), unique=True)
 
 
 # p = Place()
